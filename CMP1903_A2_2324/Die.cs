@@ -34,30 +34,41 @@ namespace CMP1903_A2_2324
             return DieValue;
         }
 
+        /// <summary>
+        /// Override of ToString that creates a symbolic representation of a dice
+        /// </summary>
+        /// <returns>A string that represents the dice's current value</returns>
         public override string ToString()
         {
+            // Create empty 2D array
             string[,] dieGrid = new string[3, 3] {{" ", " ", " "}, {" ", " ", " "},{" ", " ", " "}};
 
+            // Change the values in the die grid depending on the die's current value
             switch (DieValue)
             {
+                // If die value is one, the middle item should be O
                 case 1:
                     dieGrid[1, 1] = "O";
                     break;
+                // If die value is two, opposite corners are O
                 case 2:
                     dieGrid[0, 0] = "O";
                     dieGrid[2, 2] = "O";
                     break;
+                // If die value is three, there is a diagonal of O
                 case 3:
                     dieGrid[0, 0] = "O";
                     dieGrid[1, 1] = "O";
                     dieGrid[2, 2] = "O";
                     break;
+                // If die value is four, all corners are O
                 case 4:
                     dieGrid[0, 0] = "O";
                     dieGrid[2, 0] = "O";
                     dieGrid[0, 2] = "O";
                     dieGrid[2, 2] = "O";
                     break;
+                // If die value is five, all corners + middle are O
                 case 5:
                     dieGrid[0, 0] = "O";
                     dieGrid[2, 0] = "O";
@@ -65,6 +76,7 @@ namespace CMP1903_A2_2324
                     dieGrid[2, 2] = "O";
                     dieGrid[1, 1] = "O";
                     break;
+                // If die value is six, two columns of O at each end of the die
                 case 6:
                     dieGrid[0, 0] = "O";
                     dieGrid[1, 0] = "O";
@@ -75,6 +87,7 @@ namespace CMP1903_A2_2324
                     break;
             }
 
+            // Generate a string value using our die grid
             string dieReturn = "";
 
             for (int i = 0; i < dieGrid.GetLength(0); i++)
@@ -89,6 +102,7 @@ namespace CMP1903_A2_2324
                 dieReturn += rowReturn;
             }
 
+            // Return generated string
             return dieReturn;
         }
     }
