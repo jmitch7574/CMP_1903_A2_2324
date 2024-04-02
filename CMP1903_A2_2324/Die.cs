@@ -33,5 +33,64 @@ namespace CMP1903_A2_2324
             // Return new value
             return DieValue;
         }
+
+        public override string ToString()
+        {
+            string[,] dieGrid = new string[3, 3] {{" ", " ", " "}, {" ", " ", " "},{" ", " ", " "}};
+
+            switch (DieValue)
+            {
+                case 1:
+                    dieGrid[1, 1] = "O";
+                    break;
+                case 2:
+                    dieGrid[0, 0] = "O";
+                    dieGrid[2, 2] = "O";
+                    break;
+                case 3:
+                    dieGrid[0, 0] = "O";
+                    dieGrid[1, 1] = "O";
+                    dieGrid[2, 2] = "O";
+                    break;
+                case 4:
+                    dieGrid[0, 0] = "O";
+                    dieGrid[2, 0] = "O";
+                    dieGrid[0, 2] = "O";
+                    dieGrid[2, 2] = "O";
+                    break;
+                case 5:
+                    dieGrid[0, 0] = "O";
+                    dieGrid[2, 0] = "O";
+                    dieGrid[0, 2] = "O";
+                    dieGrid[2, 2] = "O";
+                    dieGrid[1, 1] = "O";
+                    break;
+                case 6:
+                    dieGrid[0, 0] = "O";
+                    dieGrid[1, 0] = "O";
+                    dieGrid[2, 0] = "O";
+                    dieGrid[0, 2] = "O";
+                    dieGrid[1, 2] = "O";
+                    dieGrid[2, 2] = "O";
+                    break;
+            }
+
+            string dieReturn = "";
+            dieReturn += "-----";
+
+            for (int i = 0; i < dieGrid.GetLength(0); i++)
+            {
+                string rowReturn = "|";
+                for (int j = 0; j < dieGrid.GetLength(0); j++)
+                {
+                    rowReturn += dieGrid[i, j];
+                }
+
+                rowReturn += "|";
+                dieReturn += rowReturn;
+            }
+
+            return dieReturn;
+        }
     }
 }
