@@ -76,17 +76,16 @@ namespace CMP1903_A2_2324
             }
 
             string dieReturn = "";
-            dieReturn += "-----";
 
             for (int i = 0; i < dieGrid.GetLength(0); i++)
             {
                 string rowReturn = "|";
                 for (int j = 0; j < dieGrid.GetLength(0); j++)
                 {
-                    rowReturn += dieGrid[i, j];
+                    rowReturn += " " + dieGrid[i, j] + " ";
                 }
 
-                rowReturn += "|";
+                rowReturn += "|\n";
                 dieReturn += rowReturn;
             }
 
