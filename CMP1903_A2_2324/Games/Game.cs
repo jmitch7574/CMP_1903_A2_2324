@@ -203,26 +203,196 @@ public class Game
             playerTwoScore += score;
     }
     
-    protected void EndGame()
+    /// <summary>
+    /// Create a new <see cref="Die"/> array and fill it with empty <see cref="Die"/> objects
+    /// </summary>
+    /// <param name="count"></param>
+    /// <returns>A Die Array</returns>
+    protected Die[] CreateDiceCollection(int count)
     {
-        GamePrint("Game Over");
-        if (playerOneScore == playerTwoScore)
-        {
-            GamePrint($"Tie, both players scored {playerOneScore} points");
-        }
-        else if (playerOneScore > playerTwoScore)
-        {
-            Console.WriteLine($"Player 1 Wins with {playerOneScore} points!");
-        }
-        else
-        {
-            Console.WriteLine($"Player 2 Wins with {playerTwoScore} points!");
-        }
-    }
+        Die[] die = new Die[count];
+        for (int i = 0; i < count; i++)
+            die[i] = new Die();
 
+        return die;
+    }
+    
+    /// <summary>
+    /// A custom function that saves repeating if(shouldOutput) everytime i wanna write something to the console.
+    /// Get that DRY programming in.
+    /// </summary>
+    /// <param name="message">Message to be outputted</param>
     protected void GamePrint(string message = "")
     {
         if (ShouldOutput) Console.WriteLine(message);
     }
     
+    /// <summary>
+    /// Sums the Die in <see cref="DiceCollection"/>
+    /// </summary>
+    /// <returns>The sum of the die in <see cref="DiceCollection"/></returns>
+    public int DieTotal()
+    {
+        return DiceCollection.Sum(die => die.DieValue);
+    }
+    
+    /// <summary>
+    /// Rolls all the die in <see cref="DiceCollection"/>
+    /// </summary>
+    public void RollAllDie()
+    {
+        foreach (Die die in DiceCollection)
+        {
+            die.Roll();
+        }
+    }
+
+    /// <summary>
+    /// Calculates the highest-of-a-kind set. Used to calculate score in <see cref="ThreeOrMore"/>
+    /// </summary>
+    /// <example>
+    /// In a set of die with values [1, 2, 2, 4, 4, 4, 5]
+    /// The highest-of-a-kind would be 3, as there are three 4s
+    /// </example>
+    /// <returns>The highest ofa kind</returns>
+    public int MostOfAKind()
+    {
+        int currentHighest = 0;
+        
+        // Go through the DiceDictionary
+        // DiceDictionary formats dice data as { DiceValue : ArrayOfIndexesOfDice }
+        foreach (KeyValuePair<int, List<int>> entry in AsDictionary())
+        {
+            // Get how many Dice have current value
+            // If its higher than the current highest then update current highest
+            if (entry.Value.Count > currentHighest)
+            {
+                currentHighest = entry.Value.Count;
+            }
+        }
+
+        return currentHighest;
+    }
+    
+    /// <summary>
+    /// Gets the index of every dice in <see cref="DiceCollection"/> where at least one other dice shares its value
+    /// </summary>
+    /// <example>
+    /// In a set of dice with values [1, 2, 2, 4, 4, 4, 5] <br/>
+    /// It would return the indexes of all die with value 2 or 4 as they have other die with the same value. <br/>
+    /// It does not return the indexes of die with value 1 and 5 as no other dice share that value. 
+    /// </example>
+    /// <returns></returns>
+    public List<int> GetAllDieInPairs()
+    {
+        // Instantiate List
+        List<int> allDieInPairs = [];
+        
+        // Go through Dice Dictionary
+        foreach (List<int> list in AsDictionary().Values)
+        {
+            // If there is more than one dice that share a given value
+            if (list.Count > 1)
+            {
+                // Add all die with shared value to list
+                allDieInPairs.AddRange(list);
+            }
+        }
+
+        // Return list
+        return allDieInPairs;
+    }
+    
+    /// <summary>
+    /// Does the opposite of <see cref="GetAllDieInPairs"/> <br/>
+    /// jk, Returns all die that do not share their value with other die
+    /// </summary>
+    /// <example>
+    /// In a set of dice with values [1, 2, 2, 4, 4, 4, 5] <br/>
+    /// It would return the indexes of all die with value 1 or 5 as no other die share that value. <br/>
+    /// It does not return the indexes of die with value 2 or 4 as other die share those values.
+    /// </example>
+    /// <returns>All die that do not share their value </returns>
+    public List<int> GetAllDieNotInPairs()
+    {
+        // Get all die in pairs
+        List<int> allDieInPairs = GetAllDieInPairs();
+        List<int> allDieNotInPairs = [];
+        
+        // Go through each die
+        foreach(Die die in DiceCollection)
+        {
+            // Check if it is in GetAllDieInPairs()
+            int dieIndex = Array.IndexOf(DiceCollection, die);
+            if (!allDieInPairs.Contains(dieIndex))
+            {
+                // add it to list
+                allDieNotInPairs.Add(dieIndex);
+            }
+        }
+
+        // return list
+        return allDieNotInPairs;
+    }
+    
+    /// <summary>
+    /// Converts our dice collection into a data dictionary, where the Keys are possible dice values 1-6.
+    /// And value is an <see cref="Array"/> of indexes of <see cref="Die"/> in <see cref="DiceCollection"/> that have rolled that value
+    /// </summary>
+    /// <returns>A data dictionary</returns>
+    public Dictionary<int, List<int>> AsDictionary()
+    {
+        // Initiate for loop
+        Dictionary<int, List<int>> pairSet = new();
+        
+        // For all possible die values 1-6
+        for (int i = 1; i <= 6; i++)
+        {
+            // Add the indexes of all die that match die value
+            pairSet[i] = FindMatches(i);
+        }
+
+        return pairSet;
+    }
+    
+    /// <summary>
+    /// Get indexes of all <see cref="Die"/> in <see cref="DiceCollection"/> that match <see cref="target"/>
+    /// </summary>
+    /// <param name="target">The target to match</param>
+    /// <returns>An array of indexes</returns>
+    public List<int> FindMatches(int target)
+    {
+        List<int> matches = [];
+        
+        // Use LINQ to get all die that match our target
+        matches.AddRange(
+            from die in DiceCollection
+            where die.DieValue == target 
+            select Array.IndexOf(DiceCollection, die));
+
+        return matches;
+    }
+    
+    /// <summary>
+    /// Prints all <see cref="Die"/> in <see cref="DiceCollection"/> to the console
+    /// </summary>
+    public void OutputDie()
+    {
+        foreach (Die die in DiceCollection)
+        {
+            Console.WriteLine(die);
+        }
+    }
+
+    /// <summary>
+    /// Given an array of indexes of <see cref="Die"/> in <see cref="DiceCollection"/>. Roll those specific Dice
+    /// </summary>
+    /// <param name="indexes">The indexes to roll</param>
+    public void RollSpecificDie(int[] indexes)
+    {
+        foreach (int index in indexes)
+        {
+            DiceCollection[index].Roll();
+        }
+    }
 }
