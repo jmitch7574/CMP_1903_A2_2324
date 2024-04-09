@@ -7,47 +7,51 @@ public class Testing
 {
     public static void TestSevensOut()
     {
-        SevensOut SO = new SevensOut();
-        SO.Dice = new DieCollection(2);
+        SevensOut so = new SevensOut();
+        so.DiceCollection = new Die[2];
         
         for (int i = 0; i < 1000; i++)
         {
-            SO.PlayTurn();
+            so.PlayTurn();
             
             // Debug check that flags if Die total is 7 and isPlaying is not set to false
-            bool check = SO.Dice.DieTotal != 7 || (SO.Dice.DieTotal == 7 && !SO.isPlaying);
+            bool check = so.DieTotal() != 7 || (so.DieTotal() == 7 && !so.IsPlaying);
             Debug.Assert(check, "Game is not ending once sum is 7 or more");
         }
     }
     
     public static void TestThreeOrMore()
     {
-        ThreeOrMore TOM = new ThreeOrMore();
-        TOM.Dice = new DieCollection(2);
+        ThreeOrMore tom = new ThreeOrMore();
+        tom.DiceCollection = new Die[5];
         
         for (int i = 0; i < 1000; i++)
         {
-            TOM.PlayTurn();
+            tom.PlayTurn();
             
             // Debug check that flags if Die total is 7 and isPlaying is not set to false
-            bool check = TOM.playerOneScore < 20 || (TOM.playerOneScore >= 20 && !TOM.isPlaying);
+            bool check = tom.PlayerOneScore < 20 || (tom.PlayerOneScore >= 20 && !tom.IsPlaying);
             Debug.Assert(check, "Game is not ending once player score is 20 or more");
         }
     }
 
     public static void TestDieCollection()
     {
-        DieCollection Dice = new DieCollection(10);
+        Game game = new Game();
+        game.DiceCollection = new Die[10];
+        
 
         for (int i = 0; i < 1000; i++)
         {
+            game.RollAllDie();
+            
             int sum = 0;
-            foreach (Die die in Dice.DiceItems)
+            foreach (Die die in game.DiceCollection)
             {
                 sum += die.DieValue;
             }
             
-            Debug.Assert(sum == Dice.DieTotal, "Dice Collection Class incorrectly adding up die values");
+            Debug.Assert(sum == game.DieTotal(), "Dice Collection Class incorrectly adding up die values");
         }
     }
 }
