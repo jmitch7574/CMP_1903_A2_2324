@@ -6,9 +6,9 @@ public class SevensOut : Game
     {
         base.PlayGame(shouldOutput);
 
-        Dice = new DieCollection(2);
-
-        while (isPlaying)
+        DiceCollection = CreateDiceCollection(2);
+            
+        while (IsPlaying)
         {
             StartTurn();
         }
@@ -20,21 +20,24 @@ public class SevensOut : Game
     public override void PlayTurn()
     {
         base.PlayTurn();
-        Dice.RollAllDie();
+        RollAllDie();
         
-        if (ShouldOutput) Dice.OutputDie();
+        if (ShouldOutput) OutputDie();
 
-        if (Dice.DieTotal == 7)
+        if (DieTotal() == 7)
         {
-            isPlaying = false;
+            IsPlaying = false;
+            EndTurn();
             return;
         }
             
-        if (Dice.DiceItems[0].DieValue == Dice.DiceItems[1].DieValue)
+        if (DiceCollection[0].DieValue == DiceCollection[1].DieValue)
         {
             GamePrint("Doubles! Added score will be doubled");
-            AddScore(Dice.DieTotal * 2);
+            AddScore(DieTotal() * 2);
         }
-        else AddScore(Dice.DieTotal);
+        else AddScore(DieTotal());
+        
+        EndTurn();
     }
 }

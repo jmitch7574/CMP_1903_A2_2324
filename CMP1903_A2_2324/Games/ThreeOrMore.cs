@@ -2,16 +2,16 @@ namespace CMP1903_A2_2324.Games;
 
 public class ThreeOrMore : Game
 {
-    private static string _rerollMessage = "Two of a pair, would you like to re-roll the remaining die or re-roll all?";
-    private static string[] _rerollOptions = ["Re-roll Remaining", "Re-roll All"];
+    private static readonly string RerollMessage = "Two of a pair, would you like to re-roll the remaining die or re-roll all?";
+    private static readonly string[] RerollOptions = ["Re-roll Remaining", "Re-roll All"];
     
     public override void PlayGame(bool shouldOutput)
     {
         base.PlayGame(shouldOutput);
+
+        DiceCollection = CreateDiceCollection(5);
         
-        Dice = new DieCollection(5);
-        
-        while (isPlaying)
+        while (IsPlaying)
         {
             StartTurn();
         }
@@ -21,17 +21,19 @@ public class ThreeOrMore : Game
     public override void PlayTurn()
     {
         base.PlayTurn();
-        Dice.RollAllDie();
-        if (ShouldOutput) Dice.OutputDie();
+        RollAllDie();
+        if (ShouldOutput) OutputDie();
 
         CheckDie(true);
 
-        if (playerOneScore >= 20 || playerTwoScore >= 20) isPlaying = false;
+        if (PlayerOneScore >= 20 || PlayerTwoScore >= 20) IsPlaying = false;
+        
+        EndTurn();
     }
 
     void CheckDie(bool canReroll)
     {
-        switch (Dice.MostOfAKind())
+        switch (MostOfAKind())
         {
             case 1:
                 GamePrint("No Pairs, Unlucky!");
@@ -59,16 +61,16 @@ public class ThreeOrMore : Game
             return;
         }
 
-        switch (PlayerChoice(_rerollMessage, _rerollOptions))
+        switch (PlayerChoice(RerollMessage, RerollOptions))
         {
             case "Re-roll Remaining":
-                Dice.RollSpecificDie(Dice.GetAllDieNotInPairs().ToArray());
-                if (ShouldOutput) Dice.OutputDie();
+                RollSpecificDie(GetAllDieNotInPairs().ToArray());
+                if (ShouldOutput) OutputDie();
                 CheckDie(false);
                 break;
             case "Re-roll All":
-                Dice.RollAllDie();
-                if (ShouldOutput) Dice.OutputDie();
+                RollAllDie();
+                if (ShouldOutput) OutputDie();
                 CheckDie(false);
                 break;
         }
