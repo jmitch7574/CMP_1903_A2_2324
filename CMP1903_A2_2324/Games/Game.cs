@@ -42,12 +42,18 @@ public class Game
         IsPlaying = true;
     }
     
+    /// <summary>
+    /// Asks the user whether or not each player is a human or robot
+    /// </summary>
     private void MakePlayers()
     {
         IsPlayerOneAi = Program.Menu("Player 1, " + HumanOrAiM, HumanOrAiO) == "Computer";
         IsPlayerTwoAi = Program.Menu("Player 2, " + HumanOrAiM, HumanOrAiO) == "Computer";
     }
     
+    /// <summary>
+    /// Runs at the start of each turn. Determines which player's turn it is and then plays the turn
+    /// </summary>
     protected void StartTurn()
     {
         Turn++;
@@ -60,18 +66,27 @@ public class Game
         PlayTurn();
     }
 
+    /// <summary>
+    /// Base functionality for a turn, games add their turn functionality.
+    /// <see cref="AwaitTurn"/> waits for player confirmation to begin turn
+    /// </summary>
     public virtual void PlayTurn()
     { 
         AwaitTurn();
     }
 
-
+    /// <summary>
+    /// Runs at the end of the turn and adds current game stats to our Turn Data list for <see cref="Statistics"/> purposes
+    /// </summary>
     protected void EndTurn()
     {
         TurnData.Add(new int[3] {Turn, PlayerOneScore, PlayerTwoScore});
     }
 
-    
+    /// <summary>
+    /// Function that runs at the end of the game. 
+    /// Outputs the winner and saves game data to file
+    /// </summary>
     protected void EndGame()
     {
         GamePrint("Game Over");
