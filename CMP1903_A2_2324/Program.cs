@@ -17,9 +17,6 @@ public class Program
     private static readonly string StatisticsM = "Would you like to see match statistics?";
     private static readonly string[] StatisticsO = ["Yes", "No"];
 
-    
-    
-
     /// <summary>
     /// Entry point for program
     /// </summary>
@@ -29,7 +26,9 @@ public class Program
         MainMenu();
     }
 
-    
+    /// <summary>
+    /// Asks player to choose program operation
+    /// </summary>
     private static void MainMenu()
     {
         switch (Menu(MainMenuM, MainMenuO))
@@ -44,6 +43,9 @@ public class Program
         }
     }
 
+    /// <summary>
+    /// Asks player to choose which game to play
+    /// </summary>
     private static void GameMenu()
     {
         switch (Menu(GameMenuM, GameOptions))
