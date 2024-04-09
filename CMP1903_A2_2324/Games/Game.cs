@@ -3,35 +3,36 @@ namespace CMP1903_A2_2324.Games;
 public class Game
 {
     // Player Data
-    public int playerOneScore;
-    protected int playerTwoScore;
+    public int PlayerOneScore { get; protected set; }
+    public int PlayerTwoScore { get; protected set; }
 
-    protected bool isPlayerOneAI;
-    protected bool isPlayerTwoAI;
+    public bool IsPlayerOneAi { get; protected set; }
+    public bool IsPlayerTwoAi { get; protected set; }
     
     // Game Data
-    public DieCollection Dice;
-    protected int Turn;
-    protected bool isPlayerOneTurn;
-    public bool isPlaying;
-    protected bool ShouldOutput;
+    public Die[] DiceCollection { get; set; } = new Die[] {};
+    public int Turn { get; protected set; }
+    public bool IsPlayerOneTurn { get; protected set; }
+    public bool IsPlaying { get; protected set; }
+    public bool ShouldOutput { get; protected set; }
+    public List<int[]> TurnData { get; protected set; } = new List<int[]>();
 
     // Menu Variables
-    private static readonly string _mainMenuM = "What would you like to do?";
-    private static readonly string[] _mainMenuO = ["Play Game", "Run Statistics", "Run Testing"];
+    private static readonly string MainMenuM = "What would you like to do?";
+    private static readonly string[] MainMenuO = ["Play Game", "Run Statistics", "Run Testing"];
 
-    private static readonly string _gameMenuM = "What game would you like to play?";
-    private static readonly string[] _gameOptions = ["Sevens Out", "Three or More"];
+    private static readonly string GameMenuM = "What game would you like to play?";
+    private static readonly string[] GameOptions = ["Sevens Out", "Three or More"];
 
-    private static readonly string _statsMenuM = "What statistics would you like to run?";
-    private static readonly string _testMenuM = "What would you like to Test?";
-    private static readonly string[] _testAndStatsOptions = ["Sevens Out", "Three or More"];
+    private static readonly string StatsMenuM = "What statistics would you like to run?";
+    private static readonly string TestMenuM = "What would you like to Test?";
+    private static readonly string[] TestAndStatsOptions = ["Sevens Out", "Three or More"];
     
-    private static readonly string _statisticsM = "Would you like to see match statistics?";
-    private static readonly string[] _statisticsO = ["Yes", "No"];
+    private static readonly string StatisticsM = "Would you like to see match statistics?";
+    private static readonly string[] StatisticsO = ["Yes", "No"];
 
-    private static readonly string _humanOrAiM = "Is this player a human or computer?";
-    private static readonly string[] _humanOrAiO = ["Human", "Computer"];
+    private static readonly string HumanOrAiM = "Is this player a human or computer?";
+    private static readonly string[] HumanOrAiO = ["Human", "Computer"];
     
     
 
