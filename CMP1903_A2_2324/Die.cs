@@ -14,7 +14,7 @@ namespace CMP1903_A2_2324
         /// <summary>
         /// The <c>Random</c> object used by the <c>Roll()</c> function
         /// </summary>
-        private static Random _random = new Random();
+        private static readonly Random Random = new Random();
 
         /// <summary>
         /// Represents the die's current value
@@ -28,7 +28,7 @@ namespace CMP1903_A2_2324
         public int Roll()
         {
             // Generate new random number, between 1-6 (maxValue is non-inclusive so it is 7
-            DieValue = _random.Next(minValue: 1, maxValue: 7);
+            DieValue = Random.Next(minValue: 1, maxValue: 7);
             
             // Return new value
             return DieValue;
@@ -104,117 +104,6 @@ namespace CMP1903_A2_2324
 
             // Return generated string
             return dieReturn;
-        }
-    }
-
-    public class DieCollection
-    {
-        public List<Die> DiceItems { get; private set; }
-
-        public int DieTotal
-        {
-            get
-            {
-                return DiceItems.Sum(die => die.DieValue);
-            }
-        }
-        
-        public DieCollection(int count)
-        {
-            DiceItems = new List<Die>();
-            for (int i = 0; i < count; i++) DiceItems.Add(new Die());
-        }
-        
-        public void RollAllDie()
-        {
-            foreach (Die die in DiceItems)
-            {
-                die.Roll();
-            }
-        }
-
-        public int MostOfAKind()
-        {
-            int currentHighest = 0;
-            foreach (KeyValuePair<int, List<int>> entry in AsDictionary())
-            {
-                if (entry.Value.Count > currentHighest)
-                {
-                    currentHighest = entry.Value.Count;
-                }
-            }
-
-            return currentHighest;
-        }
-        
-        public List<int> GetAllDieInPairs()
-        {
-            List<int> allDieInPairs = [];
-            foreach (List<int> list in AsDictionary().Values)
-            {
-                if (list.Count > 1)
-                {
-                    allDieInPairs.AddRange(list);
-                }
-            }
-
-            return allDieInPairs;
-        }
-        
-        public List<int> GetAllDieNotInPairs()
-        {
-            List<int> allDieInPairs = GetAllDieInPairs();
-            List<int> allDieNotInPairs = [];
-            
-            foreach(Die die in DiceItems)
-            {
-                int dieIndex = DiceItems.IndexOf(die);
-                if (!allDieInPairs.Contains(dieIndex))
-                {
-                    allDieNotInPairs.Add(dieIndex);
-                }
-            }
-
-            return allDieNotInPairs;
-        }
-        
-        public Dictionary<int, List<int>> AsDictionary()
-        {
-            Dictionary<int, List<int>> pairSet = new();
-            
-            for (int i = 1; i <= 6; i++)
-            {
-                pairSet[i] = FindMatches(i);
-            }
-
-            return pairSet;
-        }
-        
-        public List<int> FindMatches(int target)
-        {
-            List<int> matches = [];
-            matches.AddRange(
-                from die in DiceItems 
-                where die.DieValue == target 
-                select DiceItems.IndexOf(die));
-
-            return matches;
-        }
-        
-        public void OutputDie()
-        {
-            foreach (Die die in DiceItems)
-            {
-                Console.WriteLine(die);
-            }
-        }
-
-        public void RollSpecificDie(int[] indexes)
-        {
-            foreach (int index in indexes)
-            {
-                DiceItems[index].Roll();
-            }
         }
     }
 }
