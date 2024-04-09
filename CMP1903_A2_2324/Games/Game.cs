@@ -2,6 +2,8 @@ namespace CMP1903_A2_2324.Games;
 
 public class Game
 {
+    // These are all marked as properties because C#s built in JSON serializer cannot read variables for some reason :(
+    
     // Player Data
     public int PlayerOneScore { get; protected set; }
     public int PlayerTwoScore { get; protected set; }
@@ -44,7 +46,7 @@ public class Game
 
     private void MainMenu()
     {
-        switch (Menu(_mainMenuM, _mainMenuO))
+        switch (Menu(MainMenuM, MainMenuO))
         {
             case "Play Game":
                 GameMenu();
@@ -58,23 +60,24 @@ public class Game
 
     private void GameMenu()
     {
-        switch (Menu(_gameMenuM, _gameOptions))
+        switch (Menu(GameMenuM, GameOptions))
         {
             case "Sevens Out":
-                SevensOut SO = new SevensOut();
-                SO.PlayGame(true);
+                SevensOut so = new SevensOut();
+                so.PlayGame(true);
                 break;
             case "Three or More":
-                ThreeOrMore TOM = new ThreeOrMore();
-                TOM.PlayGame(true);
+                ThreeOrMore tom = new ThreeOrMore();
+                tom.PlayGame(true);
                 break;
         }
     }
+    
 
     private void MakePlayers()
     {
-        isPlayerOneAI = Menu("Player 1, " + _humanOrAiM, _humanOrAiO) == "Computer";
-        isPlayerTwoAI = Menu("Player 2, " + _humanOrAiM, _humanOrAiO) == "Computer";
+        IsPlayerOneAi = Menu("Player 1, " + HumanOrAiM, HumanOrAiO) == "Computer";
+        IsPlayerTwoAi = Menu("Player 2, " + HumanOrAiM, HumanOrAiO) == "Computer";
     }
 
     
@@ -117,20 +120,22 @@ public class Game
         }
     }
     
+    // ---------------------------- GAME FUNCTIONS -------------------------------------
+    
     /// <summary>
     /// Contains the base setup for a playable game
     /// </summary>
-    /// <param name="playerOne">Player One Object</param>
-    /// <param name="playerTwo">Player Two Object</param>
+    /// <param name="shouldOutput">Should this game print to console.</param>
     public virtual void PlayGame(bool shouldOutput)
     {
         MakePlayers();
-        playerOneScore = 0;
-        playerTwoScore = 0;
+        PlayerOneScore = 0;
+        PlayerTwoScore = 0;
         ShouldOutput = shouldOutput;
 
         Turn = -1;
-        isPlaying = true;
+        TurnData = new List<int[]>();
+        IsPlaying = true;
     }
 
     protected void StartTurn()
@@ -139,7 +144,7 @@ public class Game
         
         GamePrint();
 
-        isPlayerOneTurn = (Turn % 2 == 0);
+        IsPlayerOneTurn = (Turn % 2 == 0);
         
         
         PlayTurn();
@@ -150,10 +155,54 @@ public class Game
         AwaitTurn();
     }
 
+
+    protected void EndTurn()
+    {
+        TurnData.Add(new int[3] {Turn, PlayerOneScore, PlayerTwoScore});
+    }
+
+    
+    protected void EndGame()
+    {
+        GamePrint("Game Over");
+        if (PlayerOneScore == PlayerTwoScore)
+        {
+            GamePrint($"Tie, both players scored {PlayerOneScore} points");
+        }
+        else if (PlayerOneScore > PlayerTwoScore)
+        {
+            Console.WriteLine($"Player 1 Wins with {PlayerOneScore} points!");
+        }
+        else
+        {
+            Console.WriteLine($"Player 2 Wins with {PlayerTwoScore} points!");
+        }
+
+        try
+        {
+            Statistics.WriteGameToFile(this);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("An error occured writing game to file");
+            //Console.WriteLine(e);
+        }
+    }
+    
+    
+    // ------------------------------- PLAYER FUNCTIONS ----------------------------------
+    // i would have preferred to have a separate player class that included these functions
+    // it'd make things a lot more self contained and neater in my opinion
+    // still works either way so ¯\_(ツ)_/¯
+    
+    /// <summary>
+    /// Gets player confirmation to start their turn in the form of a readkey operation.
+    /// If the player is a computer player, instead just wait 2 seconds and continue
+    /// </summary>
     private void AwaitTurn()
     {
         // Check if current player is a computer player
-        bool isAi = (isPlayerOneTurn && isPlayerOneAI) || (!isPlayerOneTurn && isPlayerTwoAI);
+        bool isAi = (IsPlayerOneTurn && IsPlayerOneAi) || (!IsPlayerOneTurn && IsPlayerTwoAi);
 
         if (isAi)
         {
@@ -166,14 +215,22 @@ public class Game
             Console.ReadKey();
         }
     }
-
+    
+    /// <summary>
+    /// Ask the player to choose an option using our <see cref="Menu"/> function.
+    /// If the player is a computer, instead make a <see cref="Random"/> choice
+    /// </summary>
+    /// <param name="message">The message that should be output with the options</param>
+    /// <param name="choices">A list of options the player can choose</param>
+    /// <returns>The option the player chose</returns>
     protected string PlayerChoice(string message, string[] choices)
     {
         // Check if current player is a computer player
-        bool isAi = (isPlayerOneTurn && isPlayerOneAI) || (!isPlayerOneTurn && isPlayerTwoAI);
+        bool isAi = (IsPlayerOneTurn && IsPlayerOneAi) || (!IsPlayerOneTurn && IsPlayerTwoAi);
 
         if (isAi)
         {
+            Console.WriteLine(message);
             GamePrint($"Player {GetCurrentPlayerNumber()} is making a choice...");
             if (ShouldOutput) Thread.Sleep(2000);
             
@@ -189,18 +246,26 @@ public class Game
         }
     }
 
+    /// <summary>
+    /// Get the current players number
+    /// </summary>
+    /// <returns>The player's number</returns>
     private string GetCurrentPlayerNumber()
     {
-        return (isPlayerOneTurn ? "1" : "2");
+        return (IsPlayerOneTurn ? "1" : "2");
     }
-
+    
+    /// <summary>
+    /// Adds score to the current player
+    /// </summary>
+    /// <param name="score">how many points should be added to the player's score</param>
     protected void AddScore(int score)
     {
         Console.WriteLine($"Player {GetCurrentPlayerNumber()} just added {score} points to their score!");
-        if (isPlayerOneTurn)
-            playerOneScore += score;
+        if (IsPlayerOneTurn)
+            PlayerOneScore += score;
         else
-            playerTwoScore += score;
+            PlayerTwoScore += score;
     }
     
     /// <summary>
