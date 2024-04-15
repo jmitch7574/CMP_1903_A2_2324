@@ -19,12 +19,36 @@ public class Statistics
     public List<Game> Session { get; set; } = new();
     
     // ---------------------- RUNNING GAMES --------------------
-    public static void RunGame()
+  
+    public static List<Game> StatsSevensOut()
     {
-        for (int i = 0; i < 1000000; i++)
+        List<Game> games = new();
+        Console.WriteLine("How many times should the game be run?");
+        int runCount = Program.IntInput();
+        
+        for (int i = 0; i < runCount; i++)
         {
             Game game = new SevensOut(false);
+            game.BeginGame();
+            games.Add(game);
         }
+
+        return games;
+    }
+    public static List<Game> StatsThreeOrMore()
+    {
+        List<Game> games = new();
+        Console.WriteLine("How many times should the game be run?");
+        int runCount = Program.IntInput();
+        
+        for (int i = 0; i < runCount; i++)
+        {
+            Game game = new ThreeOrMore(false);
+            game.BeginGame();
+            games.Add(game);
+        }
+
+        return games;
     }
     
     // ---------------------- FILE MANAGING --------------------
