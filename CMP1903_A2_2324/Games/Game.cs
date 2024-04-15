@@ -2,7 +2,7 @@ namespace CMP1903_A2_2324.Games;
 
 public class Game
 {
-    // These are all marked as properties because C#s built in JSON serializer cannot read variables for some reason :(
+    // These are all marked as properties because C#s built in JSON serializer cannot read variables, only properties for some reason :(
     
     // Player Data
     public int PlayerOneScore { get; protected set; }
@@ -20,9 +20,6 @@ public class Game
     public List<int[]> TurnScores { get; protected set; } = new List<int[]>();
     public List<int[]> TurnRolls { get; protected set; } = new List<int[]>();
 
-    public static List<Game> Session { get; protected set; } = new();
-
-
     // Menu variables
     private static readonly string HumanOrAiM = "Is this player a human or computer?";
     private static readonly string[] HumanOrAiO = ["Human", "Computer"];
@@ -35,7 +32,6 @@ public class Game
     /// <param name="shouldOutput">Should this game print to console.</param>
     public Game(bool shouldOutput, int diceSize)
     {
-        MakePlayers();
         PlayerOneScore = 0;
         PlayerTwoScore = 0;
         ShouldOutput = shouldOutput;
@@ -46,7 +42,11 @@ public class Game
         
         // Create dice collection
         DiceCollection = CreateDiceCollection(diceSize);
-        
+        MakePlayers();
+    }
+
+    public void BeginGame()
+    {
         // keep running turns while game is still playing
         while (IsPlaying)
         {
@@ -126,7 +126,6 @@ public class Game
         {
             GamePrint($"Player 2 Wins with {PlayerTwoScore} points!");
         }
-        Session.Add(this);
     }
     
     
