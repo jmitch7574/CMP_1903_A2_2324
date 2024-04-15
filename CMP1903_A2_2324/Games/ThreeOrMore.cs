@@ -51,7 +51,7 @@ public class ThreeOrMore : Game
             // Pairs of die, ask for a reroll if player can reroll
             case 2:
                 if (canReroll) AskReroll();
-                else Console.WriteLine("Player cannot reroll a second time");
+                else GamePrint("Player cannot reroll a second time");
                 break;
             // Three of a kind
             case 3:
