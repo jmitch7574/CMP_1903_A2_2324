@@ -17,9 +17,12 @@ public class Game
     public bool IsPlayerOneTurn { get; protected set; }
     public bool IsPlaying { get; protected set; }
     public bool ShouldOutput { get; protected set; }
-    public List<int[]> TurnData { get; protected set; } = new List<int[]>();
-    
-    
+    public List<int[]> TurnScores { get; protected set; } = new List<int[]>();
+    public List<int[]> TurnRolls { get; protected set; } = new List<int[]>();
+
+    public static List<Game> Session { get; protected set; } = new();
+
+
     // Menu variables
     private static readonly string HumanOrAiM = "Is this player a human or computer?";
     private static readonly string[] HumanOrAiO = ["Human", "Computer"];
@@ -38,7 +41,7 @@ public class Game
         ShouldOutput = shouldOutput;
 
         Turn = -1;
-        TurnData = new List<int[]>();
+        TurnScores = new List<int[]>();
         IsPlaying = true;
         
         // Create dice collection
@@ -93,6 +96,8 @@ public class Game
     protected void EndTurn()
     {
         TurnData.Add(new int[3] {Turn, PlayerOneScore, PlayerTwoScore});
+        TurnScores.Add(new int[3] {Turn, PlayerOneScore, PlayerTwoScore});
+        TurnRolls.Add(GetDieValues());
     }
 
     /// <summary>
@@ -274,6 +279,21 @@ public class Game
         }
 
         return currentHighest;
+    }
+
+    /// <summary>
+    /// Gets die values as an array
+    /// </summary>
+    /// <returns></returns>
+    public int[] GetDieValues()
+    {
+        int[] values = new int[DiceCollection.Length];
+        for (int i = 0; i < DiceCollection.Length; i++)
+        {
+            values[i] = DiceCollection[i].DieValue;
+        }
+
+        return values;
     }
     
     /// <summary>
