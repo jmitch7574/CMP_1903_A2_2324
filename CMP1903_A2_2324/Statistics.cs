@@ -3,18 +3,40 @@ using CMP1903_A2_2324.Games;
 
 namespace CMP1903_A2_2324;
 
-public static class Statistics
+public class Statistics
 {
-    // ---------------------- FILE MANAGING --------------------
-    private static string SerializeGameList(List<Game> game)
+    // ---------------------- PROPERTIES -----------------------
+    public int GamesPlayed { get; set; }
+    public int PlayerOneWins { get; set; }
+    public int PlayerTwoWins { get; set; }
+    public int Ties { get; set; }
+    public int AvgTurnsPerGame { get; set; }
+    
+    public int HighScore { get; set; }
+
+    public int[] AllRolls { get; set; } = [];
+
+    public List<Game> Session { get; set; } = new();
+    
+    // ---------------------- RUNNING GAMES --------------------
+    public static void RunGame()
     {
-        string gameJson = JsonSerializer.Serialize(game);
+        for (int i = 0; i < 1000000; i++)
+        {
+            Game game = new SevensOut(false);
+        }
+    }
+    
+    // ---------------------- FILE MANAGING --------------------
+    private static string SerializeSession(Statistics session)
+    {
+        string gameJson = JsonSerializer.Serialize(session);
         return gameJson;
     }
 
-    public static List<Game> DeserializeGameList(string fileJson)
+    public static Statistics DeserializeSession(string fileJson)
     {
-        List<Game>? games = JsonSerializer.Deserialize<List<Game>>(fileJson);
+        Statistics? games = JsonSerializer.Deserialize<Statistics>(fileJson);
         if (games == null)
             throw new JsonException("JSON data is invalid");
         return games;
@@ -62,19 +84,73 @@ public static class Statistics
         }
     }
 
-    public static void WriteGameToFile(Game game)
+    public static void WriteStatsToFile()
     {
+        Statistics stats = new Statistics();
+        
+        stats.Session = Game.Session;
+        stats.GamesPlayed = Game.Session.Count;
+        stats.HighScore = stats.GetHighestScoreInSession();
+        (stats.PlayerOneWins, stats.PlayerTwoWins, stats.Ties) = stats.GetPlayerWinsInSession();
+        stats.AllRolls = stats.GetAllRollsInSession();
+        stats.AvgTurnsPerGame = stats.GetAvgTurnsInSession();
+        
         if (!Directory.Exists("Games/")) Directory.CreateDirectory("Games");
-        string filePath = $"Games/{game.GetType()}-{DateTime.Now:yyyyMMddHHmmss}.json";
-        WriteFileContents(filePath, SerializeGameList([game]));  
+        string filePath = $"Games/Session-{DateTime.Now:yyyyMMddHHmmss}.json";
+        WriteFileContents(filePath, SerializeSession(stats));   
         Console.WriteLine($"Game contents written to {filePath}");
     }
-
-    public static void WriteGameToFile(List<Game> games)
+    
+    public int GetHighestScoreInSession()
     {
-        if (!Directory.Exists("Games/")) Directory.CreateDirectory("Games");
-        string filePath = $"Games/{games[0].GetType()}-{DateTime.Now:yyyyMMddHHmmss}.json";
-        WriteFileContents(filePath, SerializeGameList(games));   
-        Console.WriteLine($"Game contents written to {filePath}");
+        int currentHighest = 0;
+        foreach (Game game in Session)
+        {
+            if (game.PlayerOneScore > currentHighest) currentHighest = game.PlayerOneScore;
+            if (game.PlayerTwoScore > currentHighest) currentHighest = game.PlayerTwoScore;
+        }
+
+        return currentHighest;
+    }
+
+    public (int, int, int) GetPlayerWinsInSession()
+    {
+        int playerOneWins = 0;
+        int playerTwoWins = 0;
+        int ties = 0;
+
+        foreach (Game game in Session)
+        {
+            if (game.PlayerOneScore > game.PlayerTwoScore) playerOneWins++;
+            else if (game.PlayerTwoScore > game.PlayerOneScore) playerTwoWins++;
+            else ties++;
+        }
+
+        return (playerOneWins, playerTwoWins, ties);
+    }
+
+    public int[] GetAllRollsInSession()
+    {
+        List<int> rolls = new();
+        foreach (Game game in Session)
+        {
+            foreach (int[] rollData in game.TurnRolls)
+            {
+                rolls.AddRange(rollData);
+            }
+        }
+
+        return rolls.ToArray();
+    }
+
+    public int GetAvgTurnsInSession()
+    {
+        int totalTurns = 0;
+        foreach (Game game in Session)
+        {
+            totalTurns += game.TurnRolls.Count;
+        }
+
+        return totalTurns / Session.Count;
     }
 }
