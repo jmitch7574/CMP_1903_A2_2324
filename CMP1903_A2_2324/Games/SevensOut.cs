@@ -6,25 +6,8 @@ public class SevensOut : Game
     /// Sets up a game of Sevens Out
     /// </summary>
     /// <param name="shouldOutput">Should this game output to console</param>
-    public override void PlayGame(bool shouldOutput)
-    {
-        // Initiate the game from the game class
-        base.PlayGame(shouldOutput);
+    public SevensOut(bool shouldOutput) : base(shouldOutput, 2) { }
 
-        // Create a dice collection
-        DiceCollection = CreateDiceCollection(2);
-            
-        // Keep playing turns until the game ends
-        while (IsPlaying)
-        {
-            StartTurn();
-        }
-        
-        // Print message and end game
-        GamePrint("Sevens Out!!!");
-        EndGame();
-    }
-    
     /// <summary>
     /// Plays a turn of SevensOut
     /// </summary>
@@ -46,15 +29,14 @@ public class SevensOut : Game
             EndTurn();
             return;
         }
-            
-        // Check if the die are equal and double the score
+
+        int score = DieTotal();
         if (DiceCollection[0].DieValue == DiceCollection[1].DieValue)
         {
-            GamePrint("Doubles! Added score will be doubled");
-            AddScore(DieTotal() * 2);
+            GamePrint("Doubles!, Added score will be doubled");
+            score *= 2;
         }
-        // Otherwise just add normal score
-        else AddScore(DieTotal());
+        AddScore(score);
         
         // End the turn
         EndTurn();

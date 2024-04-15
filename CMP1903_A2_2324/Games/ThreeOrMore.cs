@@ -9,23 +9,7 @@ public class ThreeOrMore : Game
     /// Starts a game of Three or More
     /// </summary>
     /// <param name="shouldOutput">Should the game output to console</param>
-    public override void PlayGame(bool shouldOutput)
-    {
-        // Run global game initialisation from game class
-        base.PlayGame(shouldOutput);
-
-        // Create dice collection
-        DiceCollection = CreateDiceCollection(5);
-        
-        // keep running turns while game is still playing
-        while (IsPlaying)
-        {
-            StartTurn();
-        }
-        
-        // End game
-        EndGame();
-    }
+    public ThreeOrMore(bool shouldOutput) : base(shouldOutput, 5) { }
 
     /// <summary>
     /// Play a turn of three or more

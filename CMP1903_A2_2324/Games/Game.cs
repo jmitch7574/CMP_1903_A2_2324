@@ -30,7 +30,7 @@ public class Game
     /// Contains the base setup for a playable game
     /// </summary>
     /// <param name="shouldOutput">Should this game print to console.</param>
-    public virtual void PlayGame(bool shouldOutput)
+    public Game(bool shouldOutput, int diceSize)
     {
         MakePlayers();
         PlayerOneScore = 0;
@@ -40,6 +40,18 @@ public class Game
         Turn = -1;
         TurnData = new List<int[]>();
         IsPlaying = true;
+        
+        // Create dice collection
+        DiceCollection = CreateDiceCollection(diceSize);
+        
+        // keep running turns while game is still playing
+        while (IsPlaying)
+        {
+            StartTurn();
+        }
+        
+        // End game
+        EndGame();
     }
     
     /// <summary>
