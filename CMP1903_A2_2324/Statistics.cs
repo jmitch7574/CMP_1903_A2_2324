@@ -6,15 +6,15 @@ namespace CMP1903_A2_2324;
 public class Statistics
 {
     // ---------------------- PROPERTIES -----------------------
-    public int GamesPlayed { get; set; }
+    public int GamesPlayed => Session.Count;
+    public int AvgTurnsPerGame => GetAvgTurnsInSession();
+
+    public int HighScore => GetHighestScoreInSession();
+
+    public int[] AllRolls => GetAllRollsInSession();
     public int PlayerOneWins { get; set; }
     public int PlayerTwoWins { get; set; }
     public int Ties { get; set; }
-    public int AvgTurnsPerGame { get; set; }
-    
-    public int HighScore { get; set; }
-
-    public int[] AllRolls { get; set; } = [];
 
     public List<Game> Session { get; set; } = new();
     
@@ -84,20 +84,13 @@ public class Statistics
         }
     }
 
-    public static void WriteStatsToFile()
+    public void WriteStatsToFile()
     {
-        Statistics stats = new Statistics();
-        
-        stats.Session = Game.Session;
-        stats.GamesPlayed = Game.Session.Count;
-        stats.HighScore = stats.GetHighestScoreInSession();
-        (stats.PlayerOneWins, stats.PlayerTwoWins, stats.Ties) = stats.GetPlayerWinsInSession();
-        stats.AllRolls = stats.GetAllRollsInSession();
-        stats.AvgTurnsPerGame = stats.GetAvgTurnsInSession();
+        (PlayerOneWins, PlayerTwoWins, Ties) = GetPlayerWinsInSession();
         
         if (!Directory.Exists("Games/")) Directory.CreateDirectory("Games");
         string filePath = $"Games/Session-{DateTime.Now:yyyyMMddHHmmss}.json";
-        WriteFileContents(filePath, SerializeSession(stats));   
+        WriteFileContents(filePath, SerializeSession(this));   
         Console.WriteLine($"Game contents written to {filePath}");
     }
     
@@ -145,6 +138,8 @@ public class Statistics
 
     public int GetAvgTurnsInSession()
     {
+        if (Session.Count == 0) return 0;
+        
         int totalTurns = 0;
         foreach (Game game in Session)
         {
