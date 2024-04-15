@@ -62,8 +62,16 @@ public class Game
     /// </summary>
     private void MakePlayers()
     {
-        IsPlayerOneAi = Program.Menu("Player 1, " + HumanOrAiM, HumanOrAiO) == "Computer";
-        IsPlayerTwoAi = Program.Menu("Player 2, " + HumanOrAiM, HumanOrAiO) == "Computer";
+        if (!ShouldOutput)
+        {
+            IsPlayerOneAi = true;
+            IsPlayerTwoAi = true;
+        }
+        else
+        {
+            IsPlayerOneAi = Program.Menu("Player 1, " + HumanOrAiM, HumanOrAiO) == "Computer";
+            IsPlayerTwoAi = Program.Menu("Player 2, " + HumanOrAiM, HumanOrAiO) == "Computer";
+        }
     }
     
     /// <summary>
@@ -95,7 +103,6 @@ public class Game
     /// </summary>
     protected void EndTurn()
     {
-        TurnData.Add(new int[3] {Turn, PlayerOneScore, PlayerTwoScore});
         TurnScores.Add(new int[3] {Turn, PlayerOneScore, PlayerTwoScore});
         TurnRolls.Add(GetDieValues());
     }
@@ -113,22 +120,13 @@ public class Game
         }
         else if (PlayerOneScore > PlayerTwoScore)
         {
-            Console.WriteLine($"Player 1 Wins with {PlayerOneScore} points!");
+            GamePrint($"Player 1 Wins with {PlayerOneScore} points!");
         }
         else
         {
-            Console.WriteLine($"Player 2 Wins with {PlayerTwoScore} points!");
+            GamePrint($"Player 2 Wins with {PlayerTwoScore} points!");
         }
-
-        try
-        {
-            Statistics.WriteGameToFile(this);
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine("An error occured writing game to file");
-            //Console.WriteLine(e);
-        }
+        Session.Add(this);
     }
     
     
@@ -148,12 +146,12 @@ public class Game
 
         if (isAi)
         {
-            Console.WriteLine($"Player {GetCurrentPlayerNumber()}, is taking their turn");
+            GamePrint($"Player {GetCurrentPlayerNumber()}, is taking their turn");
             if (ShouldOutput) Thread.Sleep(3000);
         }
         else
         {
-            Console.WriteLine($"Player {GetCurrentPlayerNumber()}, press any key to take your turn");
+            GamePrint($"Player {GetCurrentPlayerNumber()}, press any key to take your turn");
             Console.ReadKey();
         }
     }
@@ -172,20 +170,18 @@ public class Game
 
         if (isAi)
         {
-            Console.WriteLine(message);
+            GamePrint(message);
             GamePrint($"Player {GetCurrentPlayerNumber()} is making a choice...");
             if (ShouldOutput) Thread.Sleep(2000);
             
             Random random = new Random();
             int choiceIndex = random.Next(choices.Length);
             string choice = choices[choiceIndex];
-            Console.WriteLine($"Player {GetCurrentPlayerNumber()} has chosen to {choice}");
+            GamePrint($"Player {GetCurrentPlayerNumber()} has chosen to {choice}");
             return choice;
         }
-        else
-        {
-            return Program.Menu(message, choices);
-        }
+        return Program.Menu(message, choices);
+        
     }
 
     /// <summary>
@@ -203,7 +199,7 @@ public class Game
     /// <param name="score">how many points should be added to the player's score</param>
     protected void AddScore(int score)
     {
-        Console.WriteLine($"Player {GetCurrentPlayerNumber()} just added {score} points to their score!");
+        GamePrint($"Player {GetCurrentPlayerNumber()} just added {score} points to their score!");
         if (IsPlayerOneTurn)
             PlayerOneScore += score;
         else
@@ -226,7 +222,8 @@ public class Game
     
     /// <summary>
     /// A custom function that saves repeating if(shouldOutput) everytime i wanna write something to the console.
-    /// Get that DRY programming in.
+    /// Get that DRY programming in. <br/>
+    /// Can be expanded to become a GUI function
     /// </summary>
     /// <param name="message">Message to be outputted</param>
     protected void GamePrint(string message = "")
@@ -402,7 +399,7 @@ public class Game
     {
         foreach (Die die in DiceCollection)
         {
-            Console.WriteLine(die);
+            GamePrint(die.ToString());
         }
     }
 
