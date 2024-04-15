@@ -7,8 +7,7 @@ public class Testing
 {
     public static void TestSevensOut()
     {
-        SevensOut so = new SevensOut();
-        so.DiceCollection = new Die[2];
+        SevensOut so = new SevensOut(false);
         
         for (int i = 0; i < 1000; i++)
         {
@@ -22,8 +21,7 @@ public class Testing
     
     public static void TestThreeOrMore()
     {
-        ThreeOrMore tom = new ThreeOrMore();
-        tom.DiceCollection = new Die[5];
+        ThreeOrMore tom = new ThreeOrMore(false);
         
         for (int i = 0; i < 1000; i++)
         {
@@ -37,10 +35,8 @@ public class Testing
 
     public static void TestDieCollection()
     {
-        Game game = new Game();
-        game.DiceCollection = new Die[10];
+        Game game = new Game(false, 10);
         
-
         for (int i = 0; i < 1000; i++)
         {
             game.RollAllDie();
