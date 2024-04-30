@@ -6,23 +6,35 @@ namespace CMP1903_A2_2324;
 public class Statistics
 {
     // ---------------------- PROPERTIES -----------------------
-    public int GamesPlayed => Session.Count;
-    public int AvgTurnsPerGame => GetAvgTurnsInSession();
-
-    public int HighScore => GetHighestScoreInSession();
-
-    public int[] AllRolls => GetAllRollsInSession();
+    
+    // List of games in session
+    public string GameType { get; set; }
+    public int GamesPlayed { get; set; }
+    public double AvgTurnsPerGame { get; set; }
+    public int HighestTurnCount { get; set; }
+    public int HighScore { get; set; }
     public int PlayerOneWins { get; set; }
     public int PlayerTwoWins { get; set; }
     public int Ties { get; set; }
 
-    public List<Game> Session { get; set; } = new();
+    public Statistics(string gameType)
+    {
+        this.GameType = gameType;
+        this.GamesPlayed = 0;
+        this.AvgTurnsPerGame = 0;
+        this.HighestTurnCount = 0;
+        this.HighScore = 0;
+        this.PlayerOneWins = 0;
+        this.PlayerTwoWins = 0;
+        this.Ties = 0;
+    }
     
     // ---------------------- RUNNING GAMES --------------------
   
-    public static List<Game> StatsSevensOut()
+    public static Statistics StatsSevensOut()
     {
-        List<Game> games = new();
+        Statistics stats = new("SevensOut");
+        
         Console.WriteLine("How many times should the game be run?");
         int runCount = Program.IntInput();
         
@@ -30,14 +42,14 @@ public class Statistics
         {
             Game game = new SevensOut(false);
             game.BeginGame();
-            games.Add(game);
+            stats.AddGame(game);
         }
 
-        return games;
+        return stats;
     }
-    public static List<Game> StatsThreeOrMore()
+    public static Statistics StatsThreeOrMore()
     {
-        List<Game> games = new();
+        Statistics stats = new("ThreeOrMore");
         Console.WriteLine("How many times should the game be run?");
         int runCount = Program.IntInput();
         
@@ -45,131 +57,35 @@ public class Statistics
         {
             Game game = new ThreeOrMore(false);
             game.BeginGame();
-            games.Add(game);
+            stats.AddGame(game);
         }
 
-        return games;
-    }
-    
-    // ---------------------- FILE MANAGING --------------------
-    private static string SerializeSession(Statistics session)
-    {
-        string gameJson = JsonSerializer.Serialize(session);
-        return gameJson;
+        return stats;
     }
 
-    public static Statistics DeserializeSession(string fileJson)
+
+    public void AddGame(Game game)
     {
-        Statistics? games = JsonSerializer.Deserialize<Statistics>(fileJson);
-        if (games == null)
-            throw new JsonException("JSON data is invalid");
-        return games;
-    }
+        double totalTurns = this.AvgTurnsPerGame * this.GamesPlayed;
+        totalTurns += game.Turn;
+        this.AvgTurnsPerGame = totalTurns / ++this.GamesPlayed;
 
-    public static string ReadFileContents(string filePath)
-    {
-        if (!File.Exists(filePath)) throw new FileNotFoundException("File does not exist");
-        try
+        switch (game.GameResult)
         {
-            string file = File.ReadAllText(filePath);
-            return file;
-        }
-        catch
-        {
-            throw new FileLoadException("File could not be loaded");
-        }
-    }
-
-    private static void WriteFileContents(string filePath, string fileContents)
-    {
-        try
-        {
-            File.WriteAllText(filePath, fileContents);
-        }
-        catch
-        {
-            throw new FileLoadException("File could not be written");
-        }
-        
-    }
-
-    public static string[] GetFilesInDirectory(string dirPath)
-    {
-        if (!Directory.Exists(dirPath)) throw new DirectoryNotFoundException("Directory could not be found");
-
-        try
-        {
-            string[] files = Directory.EnumerateFiles(dirPath).ToArray();
-            return files;
-        }
-        catch
-        {
-            throw new FileLoadException("Files in directory could not be read");
-        }
-    }
-
-    public void WriteStatsToFile()
-    {
-        (PlayerOneWins, PlayerTwoWins, Ties) = GetPlayerWinsInSession();
-        
-        if (!Directory.Exists("Games/")) Directory.CreateDirectory("Games");
-        string filePath = $"Games/Session-{DateTime.Now:yyyyMMddHHmmss}.json";
-        WriteFileContents(filePath, SerializeSession(this));   
-        Console.WriteLine($"Game contents written to {filePath}");
-    }
-    
-    public int GetHighestScoreInSession()
-    {
-        int currentHighest = 0;
-        foreach (Game game in Session)
-        {
-            if (game.PlayerOneScore > currentHighest) currentHighest = game.PlayerOneScore;
-            if (game.PlayerTwoScore > currentHighest) currentHighest = game.PlayerTwoScore;
+            case "1":
+                this.PlayerOneWins++;
+                break;
+            case "2":
+                this.PlayerTwoWins++;
+                break;
+            case "3":
+                this.Ties++;
+                break;
         }
 
-        return currentHighest;
-    }
+        if (game.Turn > this.HighestTurnCount) this.HighestTurnCount = game.Turn;
 
-    public (int, int, int) GetPlayerWinsInSession()
-    {
-        int playerOneWins = 0;
-        int playerTwoWins = 0;
-        int ties = 0;
-
-        foreach (Game game in Session)
-        {
-            if (game.PlayerOneScore > game.PlayerTwoScore) playerOneWins++;
-            else if (game.PlayerTwoScore > game.PlayerOneScore) playerTwoWins++;
-            else ties++;
-        }
-
-        return (playerOneWins, playerTwoWins, ties);
-    }
-
-    public int[] GetAllRollsInSession()
-    {
-        List<int> rolls = new();
-        foreach (Game game in Session)
-        {
-            foreach (int[] rollData in game.TurnRolls)
-            {
-                rolls.AddRange(rollData);
-            }
-        }
-
-        return rolls.ToArray();
-    }
-
-    public int GetAvgTurnsInSession()
-    {
-        if (Session.Count == 0) return 0;
-        
-        int totalTurns = 0;
-        foreach (Game game in Session)
-        {
-            totalTurns += game.TurnRolls.Count;
-        }
-
-        return totalTurns / Session.Count;
+        if (game.PlayerOneScore > this.HighScore) this.HighScore = game.PlayerOneScore;
+        if (game.PlayerTwoScore > this.HighScore) this.HighScore = game.PlayerTwoScore;
     }
 }

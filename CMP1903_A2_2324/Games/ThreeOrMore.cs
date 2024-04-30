@@ -18,12 +18,6 @@ public class ThreeOrMore : Game
     {
         // Run global turn code from game class
         base.PlayTurn();
-        
-        // Roll all die
-        RollAllDie();
-        
-        // Output die to console 
-        if (ShouldOutput) OutputDie();
 
         // Check the pairs in our die, allow a reroll
         CheckDie(true);

@@ -5,20 +5,20 @@ public class Game
     // These are all marked as properties because C#s built in JSON serializer cannot read variables, only properties for some reason :(
     
     // Player Data
-    public int PlayerOneScore { get; protected set; }
-    public int PlayerTwoScore { get; protected set; }
+    public int PlayerOneScore { get; private set; }
+    public int PlayerTwoScore { get; private set; }
 
-    public bool IsPlayerOneAi { get; protected set; }
-    public bool IsPlayerTwoAi { get; protected set; }
+    private bool IsPlayerOneAi { get; set; }
+    private bool IsPlayerTwoAi { get; set; }
     
     // Game Data
-    public Die[] DiceCollection { get; set; } = new Die[] {};
-    public int Turn { get; protected set; }
-    public bool IsPlayerOneTurn { get; protected set; }
+    public Die[] DiceCollection { get; protected set; } = new Die[] {};
+    public int Turn { get; private set; }
+    private bool IsPlayerOneTurn { get; set; }
     public bool IsPlaying { get; protected set; }
-    public bool ShouldOutput { get; protected set; }
-    public List<int[]> TurnScores { get; protected set; } = new List<int[]>();
-    public List<int[]> TurnRolls { get; protected set; } = new List<int[]>();
+    protected bool ShouldOutput { get; set; }
+    public int ScoreThisTurn { get; protected set; }
+    public string GameResult { get; private set; } = ""; // "1" for player 1 win, "2" for player two win, "3" for tie
 
     // Menu variables
     private static readonly string HumanOrAiM = "Is this player a human or computer?";
@@ -30,6 +30,7 @@ public class Game
     /// Contains the base setup for a playable game
     /// </summary>
     /// <param name="shouldOutput">Should this game print to console.</param>
+    /// <param name="diceSize">How many dice the game needs</param>
     public Game(bool shouldOutput, int diceSize)
     {
         PlayerOneScore = 0;
@@ -37,7 +38,6 @@ public class Game
         ShouldOutput = shouldOutput;
 
         Turn = -1;
-        TurnScores = new List<int[]>();
         IsPlaying = true;
         
         // Create dice collection
@@ -45,6 +45,9 @@ public class Game
         MakePlayers();
     }
 
+    /// <summary>
+    /// Plays the game
+    /// </summary>
     public void BeginGame()
     {
         // keep running turns while game is still playing
@@ -62,11 +65,13 @@ public class Game
     /// </summary>
     private void MakePlayers()
     {
+        // If this game shouldn't output, set both players to AI
         if (!ShouldOutput)
         {
             IsPlayerOneAi = true;
             IsPlayerTwoAi = true;
         }
+        // Otherwise ask the user which players are AI
         else
         {
             IsPlayerOneAi = Program.Menu("Player 1, " + HumanOrAiM, HumanOrAiO) == "Computer";
@@ -77,15 +82,18 @@ public class Game
     /// <summary>
     /// Runs at the start of each turn. Determines which player's turn it is and then plays the turn
     /// </summary>
-    protected void StartTurn()
+    private void StartTurn()
     {
+        // Incriment turn
         Turn++;
         
+        // Just put out a empty line keep things neat y'know
         GamePrint();
 
+        // Check which player's turn it is
         IsPlayerOneTurn = (Turn % 2 == 0);
         
-        
+        // Run turn
         PlayTurn();
     }
 
@@ -95,7 +103,16 @@ public class Game
     /// </summary>
     public virtual void PlayTurn()
     { 
+        // Wait for the player to confirm their turn
         AwaitTurn();
+        
+        // Rolls all dice
+        RollAllDie();
+        
+        // Output the dice
+        if (ShouldOutput) OutputDie();
+        
+        // Game specific functionality added in child classes
     }
 
     /// <summary>
@@ -103,8 +120,7 @@ public class Game
     /// </summary>
     protected void EndTurn()
     {
-        TurnScores.Add(new int[3] {Turn, PlayerOneScore, PlayerTwoScore});
-        TurnRolls.Add(GetDieValues());
+        
     }
 
     /// <summary>
@@ -114,17 +130,21 @@ public class Game
     protected void EndGame()
     {
         GamePrint("Game Over");
-        if (PlayerOneScore == PlayerTwoScore)
+        // Check who won
+        if (PlayerOneScore > PlayerTwoScore)
         {
-            GamePrint($"Tie, both players scored {PlayerOneScore} points");
-        }
-        else if (PlayerOneScore > PlayerTwoScore)
-        {
+            GameResult = "1";
             GamePrint($"Player 1 Wins with {PlayerOneScore} points!");
+        }
+        else if (PlayerTwoScore > PlayerOneScore)
+        {
+            GameResult = "2";
+            GamePrint($"Player 2 Wins with {PlayerTwoScore} points!");
         }
         else
         {
-            GamePrint($"Player 2 Wins with {PlayerTwoScore} points!");
+            GameResult = "3";
+            GamePrint($"Tie, both players scored {PlayerOneScore} points");
         }
     }
     
@@ -322,8 +342,7 @@ public class Game
     }
     
     /// <summary>
-    /// Does the opposite of <see cref="GetAllDieInPairs"/> <br/>
-    /// jk, Returns all die that do not share their value with other die
+    /// Gets the index of every die in <see cref="DiceCollection"/> that does not share its value with any other die
     /// </summary>
     /// <example>
     /// In a set of dice with values [1, 2, 2, 4, 4, 4, 5] <br/>
@@ -333,23 +352,21 @@ public class Game
     /// <returns>All die that do not share their value </returns>
     public List<int> GetAllDieNotInPairs()
     {
-        // Get all die in pairs
-        List<int> allDieInPairs = GetAllDieInPairs();
+        // Instantiate List
         List<int> allDieNotInPairs = [];
         
-        // Go through each die
-        foreach(Die die in DiceCollection)
+        // Go through Dice Dictionary
+        foreach (List<int> list in AsDictionary().Values)
         {
-            // Check if it is in GetAllDieInPairs()
-            int dieIndex = Array.IndexOf(DiceCollection, die);
-            if (!allDieInPairs.Contains(dieIndex))
+            // If there is more than one dice that share a given value
+            if (list.Count <= 1)
             {
-                // add it to list
-                allDieNotInPairs.Add(dieIndex);
+                // Add all die with shared value to list
+                allDieNotInPairs.AddRange(list);
             }
         }
 
-        // return list
+        // Return list
         return allDieNotInPairs;
     }
     
